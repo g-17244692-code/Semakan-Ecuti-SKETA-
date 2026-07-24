@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-CUTI GURU SK TAGAROH</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Adjustments -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+        }
+        /* Custom Scrollbar for list and modals */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION (Warna Gelap & Kontra Tinggi) -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 shadow-lg text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Tajuk Sistem - Warna Lebih Gelap & Kontra Visual Khas -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black text-xl shadow-md border border-blue-400/30">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-black text-lg sm:text-xl leading-tight text-white tracking-wide drop-shadow-sm">
+                            e-CUTI GURU
+                        </h1>
+                        <p class="text-xs text-amber-400 font-extrabold tracking-wider uppercase">SK TAGAROH</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-1 items-center font-semibold text-sm">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3.5 py-2 rounded-lg text-blue-400 bg-slate-800/80 font-bold flex items-center gap-2 border border-blue-500/30">
+                        <i class="fa-solid fa-calendar-days"></i> Dashboard
+                    </button>
+                    <button onclick="switchTab('senarai')" id="nav-senarai" class="px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-list-check"></i> Senarai Cuti
+                    </button>
+                    <button onclick="switchTab('statistik')" id="nav-statistik" class="px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-chart-pie"></i> Statistik
+                    </button>
+                    <button onclick="switchTab('admin')" id="nav-admin" class="px-3.5 py-2 rounded-lg text-slate-300 hover:text-amber-400 hover:bg-slate-800 flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-lock text-xs"></i> Pentadbir
+                    </button>
+                </nav>
+
+                <!-- Quick Action Button -->
+                <div class="flex items-center gap-2">
+                    <button onclick="openApplyModal()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-4 py-2 rounded-xl font-extrabold text-xs shadow-md transition-all duration-150 flex items-center gap-2 uppercase tracking-wider">
+                        <i class="fa-solid fa-plus font-bold"></i> <span class="hidden sm:inline">MOHON CUTI</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation Bar -->
+        <div class="md:hidden flex border-t border-slate-800 bg-slate-950 justify-around text-xs py-2 font-medium">
+            <button onclick="switchTab('dashboard')" class="flex flex-col items-center gap-1 text-blue-400">
+                <i class="fa-solid fa-calendar-days text-base"></i> Kalender
+            </button>
+            <button onclick="switchTab('senarai')" class="flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa-solid fa-list-check text-base"></i> Senarai
+            </button>
+            <button onclick="switchTab('statistik')" class="flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa-solid fa-chart-pie text-base"></i> Statistik
+            </button>
+            <button onclick="switchTab('admin')" class="flex flex-col items-center gap-1 text-amber-400">
+                <i class="fa-solid fa-lock text-base"></i> Admin
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- TAB 1: DASHBOARD & KALENDAR GERGASI -->
+        <section id="tab-dashboard" class="space-y-6">
+            <!-- HEADER TAJUK SISTEM DENGAN KONTRA GELAP -->
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 rounded-2xl border border-slate-800 shadow-md text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">Sistem Rasmi Pengurusan Cuti</span>
+                    <h2 class="text-2xl font-black text-white mt-1 tracking-tight">e-CUTI GURU SK TAGAROH</h2>
+                    <p class="text-xs text-slate-300 mt-0.5">Sistem Tempahan & Pengurusan Cuti Guru (CRK / CTR) — Maksimum 2 Orang Guru Sehari.</p>
+                </div>
+                <button onclick="openApplyModal()" class="w-full md:w-auto bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs shadow-lg flex items-center justify-center gap-2 tracking-wider uppercase transition-transform active:scale-95">
+                    <i class="fa-solid fa-calendar-plus text-sm"></i> + MOHON CUTI SEKARANG
+                </button>
+            </div>
+
+            <!-- SUMMARY CARDS -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Guru Cuti Hari Ini</div>
+                    <div class="text-2xl font-black text-slate-900 mt-2" id="stat-cuti-hari-ini">0</div>
+                    <div class="text-[10px] text-slate-400 font-medium mt-1" id="stat-cuti-hari-ini-date">-</div>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 shadow-sm flex flex-col justify-between">
+                    <div class="text-xs font-bold text-amber-800 uppercase tracking-wide">CRK Hari Ini</div>
+                    <div class="text-2xl font-black text-amber-900 mt-2" id="stat-crk-hari-ini">0</div>
+                    <div class="text-[10px] text-amber-700 font-medium mt-1">Cuti Rehat Khas</div>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm flex flex-col justify-between">
+                    <div class="text-xs font-bold text-blue-800 uppercase tracking-wide">CTR Hari Ini</div>
+                    <div class="text-2xl font-black text-blue-900 mt-2" id="stat-ctr-hari-ini">0</div>
+                    <div class="text-[10px] text-blue-700 font-medium mt-1">Cuti Tanpa Rekod</div>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 shadow-sm flex flex-col justify-between">
+                    <div class="text-xs font-bold text-emerald-800 uppercase tracking-wide">Slot Tersedia</div>
+                    <div class="text-2xl font-black text-emerald-900 mt-2" id="stat-slot-tersedia">2 / 2</div>
+                    <div class="text-[10px] text-emerald-700 font-medium mt-1">Kuota Hari Ini</div>
+                </div>
+                <div class="col-span-2 md:col-span-1 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Permohonan Bulan Ini</div>
+                    <div class="text-2xl font-black text-slate-900 mt-2" id="stat-permohonan-bulan">0</div>
+                    <div class="text-[10px] text-slate-400 font-medium mt-1">Jumlah Keseluruhan</div>
+                </div>
+            </div>
+
+            <!-- KALENDAR GERGASI CONTAINER -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <!-- Calendar Header & Navigation -->
+                <div class="p-4 sm:p-6 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-2">
+                        <button onclick="changeMonth(-1)" class="p-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 text-slate-700 shadow-sm font-bold">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 w-48 text-center uppercase tracking-wide" id="calendar-month-year">JULAI 2026</h2>
+                        <button onclick="changeMonth(1)" class="p-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 text-slate-700 shadow-sm font-bold">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Legend / Penunjuk Warna -->
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+                        <span class="flex items-center gap-1 text-emerald-800 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 font-bold">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 2 Slot Tersedia
+                        </span>
+                        <span class="flex items-center gap-1 text-amber-800 bg-amber-50 px-2 py-1 rounded-md border border-amber-200 font-bold">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 1 Slot Tersedia
+                        </span>
+                        <span class="flex items-center gap-1 text-rose-800 bg-rose-50 px-2 py-1 rounded-md border border-rose-200 font-bold">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> CUTI PENUH
+                        </span>
+                        <button onclick="goToToday()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm text-xs transition-colors">
+                            HARI INI
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Calendar Grid Header (Days) -->
+                <div class="calendar-grid bg-slate-200 border-b border-slate-300 text-center font-black text-xs text-slate-700 py-2.5">
+                    <div class="text-rose-600">AHAD</div>
+                    <div>ISNIN</div>
+                    <div>SELASA</div>
+                    <div>RABU</div>
+                    <div>KHAMIS</div>
+                    <div>JUMAAT</div>
+                    <div class="text-rose-600">SABTU</div>
+                </div>
+
+                <!-- Calendar Grid Body (Days) -->
+                <div class="calendar-grid bg-slate-200 gap-px min-h-[520px]" id="calendar-days-container">
+                    <!-- Dynamic rendering via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: SENARAI CUTI -->
+        <section id="tab-senarai" class="hidden space-y-4">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900">Senarai Permohonan Cuti</h2>
+                        <p class="text-xs text-slate-500">Pangkalan data ketidakhadiran guru SK Tagaroh</p>
+                    </div>
+                    <!-- Filters -->
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <input type="text" id="filter-search" oninput="renderTableData()" placeholder="Cari nama guru..." class="text-xs border border-slate-300 rounded-lg px-3 py-2 w-full md:w-48 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <select id="filter-jenis" onchange="renderTableData()" class="text-xs border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="">Semua Jenis Cuti</option>
+                            <option value="CRK">CRK - Cuti Rehat Khas</option>
+                            <option value="CTR">CTR - Cuti Tanpa Rekod</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-xs font-black text-slate-700 uppercase tracking-wider">
+                                <th class="p-3">Tarikh Cuti</th>
+                                <th class="p-3">Nama Guru</th>
+                                <th class="p-3">Jenis Cuti</th>
+                                <th class="p-3">Catatan</th>
+                                <th class="p-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-leave-body" class="text-xs divide-y divide-slate-100">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: STATISTIK -->
+        <section id="tab-statistik" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-xl font-black text-slate-900 mb-4">Statistik Penggunaan Cuti Guru</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-200">
+                        <div class="text-sm font-bold text-orange-900">Jumlah CRK Diambil</div>
+                        <div class="text-3xl font-black text-orange-600 mt-2" id="stat-total-crk">0</div>
+                        <div class="text-xs text-orange-700 mt-1">Tahun Semasa</div>
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                        <div class="text-sm font-bold text-blue-900">Jumlah CTR Diambil</div>
+                        <div class="text-3xl font-black text-blue-600 mt-2" id="stat-total-ctr">0</div>
+                        <div class="text-xs text-blue-700 mt-1">Tahun Semasa</div>
+                    </div>
+                    <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                        <div class="text-sm font-bold text-emerald-900">Jumlah Keseluruhan Permohonan</div>
+                        <div class="text-3xl font-black text-emerald-600 mt-2" id="stat-total-all">0</div>
+                        <div class="text-xs text-emerald-700 mt-1">Rekod Terdaftar</div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-sm font-black text-slate-800 mb-3">Ringkasan Cuti Mengikut Guru</h3>
+                    <div id="stat-teacher-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <!-- Dynamic list -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: PANEL PENTADBIR (DILINDUNGI KOD AKSES) -->
+        <section id="tab-admin" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-user-shield text-amber-500"></i> Panel Pentadbir
+                        </h2>
+                        <p class="text-xs text-slate-500">Pengurusan permohonan, edit, pembatalan & tetapan sistem</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-lock-open text-[10px]"></i> Akses Dibenarkan
+                        </span>
+                        <button onclick="lockAdminPanel()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-3 py-1 rounded-full font-bold">
+                            Kunci Semula
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Management Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-xs font-black text-slate-700 uppercase">
+                                <th class="p-3">ID</th>
+                                <th class="p-3">Tarikh</th>
+                                <th class="p-3">Nama Guru</th>
+                                <th class="p-3">Jenis</th>
+                                <th class="p-3">Catatan</th>
+                                <th class="p-3 text-right">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body" class="text-xs divide-y divide-slate-100">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Admin Settings section -->
+                <div class="mt-8 pt-6 border-t border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4">Tetapan Pangkalan Data & Google Sheets</h3>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                        <div class="text-xs text-slate-600">
+                            <strong>Google Sheets Integration URL (Abaikan jika guna storan tempatan):</strong>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="gsheets-url" placeholder="https://script.google.com/macros/s/..." class="text-xs border border-slate-300 rounded-lg px-3 py-2 flex-grow focus:outline-none">
+                            <button onclick="saveGSheetsUrl()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold">Simpan URL</button>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Skrip Apps Script Google Sheets disediakan pada bahagian bawah aplikasi ini untuk disambungkan secara automatik.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 font-medium">
+            &copy; 2026 Sistem Pengurusan Cuti Guru SK Tagaroh | Hak Cipta Terpelihara.
+        </div>
+    </footer>
+
+    <!-- MODAL AKSES PENTADBIR (KOD AKSES: 5110) -->
+    <div id="modal-admin-auth" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center border border-slate-200">
+            <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl border border-amber-200">
+                <i class="fa-solid fa-user-lock"></i>
+            </div>
+            <h3 class="text-lg font-black text-slate-900">PENGESAHAN PENTADBIR</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-4">Sila masukkan kod akses keselamatan untuk membuka Panel Pentadbir.</p>
+            
+            <form onsubmit="verifyAdminAccess(event)" class="space-y-4">
+                <div>
+                    <input type="password" id="input-admin-code" maxlength="8" placeholder="Masukkan Kod Akses" required class="w-full text-center text-lg font-black tracking-widest border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <p id="admin-auth-error" class="text-xs text-rose-600 font-bold mt-1.5 hidden"><i class="fa-solid fa-circle-exclamation"></i> Kod Akses Salah! Sila cuba lagi.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="cancelAdminAccess()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-bold text-xs">BATAL</button>
+                    <button type="submit" class="w-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 py-2.5 rounded-xl font-black text-xs shadow-md">MASUK</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 1: BORANG PERMOHONAN CUTI (+ MOHON CUTI) -->
+    <div id="modal-apply" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100">
+            <div class="bg-slate-900 px-6 py-4 flex justify-between items-center text-white border-b border-slate-800">
+                <h3 class="font-black text-base flex items-center gap-2">
+                    <i class="fa-solid fa-file-pen text-amber-400"></i> Permohonan Cuti Baru
+                </h3>
+                <button onclick="closeModal('modal-apply')" class="text-slate-400 hover:text-white text-xl">&times;</button>
+            </div>
+            
+            <form id="form-apply" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4">
+                <!-- Nama Guru -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Guru *</label>
+                    <select id="input-nama" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="">-- Pilih Nama Guru --</option>
+                        <!-- Dynamic Teacher Options -->
+                    </select>
+                </div>
+
+                <!-- Jenis Cuti -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Cuti *</label>
+                    <select id="input-jenis" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="CRK">CRK - Cuti Rehat Khas</option>
+                        <option value="CTR">CTR - Cuti Tanpa Rekod</option>
+                    </select>
+                </div>
+
+                <!-- Tarikh Cuti -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tarikh Cuti *</label>
+                    <input type="date" id="input-tarikh" required onchange="checkSlotAvailabilityOnForm()" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <!-- Slot Status Live Indicator -->
+                <div id="form-slot-indicator" class="hidden p-3 rounded-lg text-xs font-medium border">
+                    <!-- Live Slot Status Message -->
+                </div>
+
+                <!-- Catatan -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Catatan / Urusan</label>
+                    <textarea id="input-catatan" rows="2" placeholder="Urusan keluarga / rasmi..." class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-apply')" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200">BATAL</button>
+                    <button type="submit" id="btn-submit-apply" class="px-4 py-2 rounded-lg text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 shadow-sm">HANTAR PERMOHONAN</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: POPUP DETAIL TARIKH (KLIK TARIKH KALENDAR) -->
+    <div id="modal-date-detail" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                <div>
+                    <div class="text-xs font-black text-blue-600 uppercase tracking-wider">MAKLUMAT TARIKH</div>
+                    <h3 class="text-lg font-black text-slate-900" id="detail-modal-date-title">28 JULAI 2026</h3>
+                </div>
+                <button onclick="closeModal('modal-date-detail')" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <!-- Status Badge -->
+                <div id="detail-modal-status" class="p-3 rounded-xl border text-xs font-bold flex items-center gap-2">
+                    <!-- Status text -->
+                </div>
+
+                <!-- Teacher List for the Date -->
+                <div>
+                    <div class="text-xs font-bold text-slate-500 mb-2">Guru Bercuti Tarikh Ini:</div>
+                    <div id="detail-modal-teachers" class="space-y-2">
+                        <!-- List teachers -->
+                    </div>
+                </div>
+
+                <!-- Action button -->
+                <div id="detail-modal-action" class="pt-2">
+                    <!-- Dynamic button -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: POPUP AMARAN CUTI PENUH (RUJUK GURU BESAR) -->
+    <div id="modal-full-warning" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-center p-6 border-2 border-rose-500">
+            <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-lg font-black text-slate-900 uppercase tracking-tight">PERMOHONAN TIDAK DAPAT DIPROSES</h3>
+            <p class="text-xs font-extrabold text-rose-600 mt-1" id="warning-date-text">Tarikh: -</p>
+            
+            <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 my-4 text-xs text-rose-800 text-left space-y-1">
+                <p class="font-medium">Kuota cuti guru bagi tarikh ini telah mencapai had maksimum:</p>
+                <p class="font-black text-sm text-rose-900 text-center py-1">2 / 2 GURU (CUTI PENUH)</p>
+                <p class="text-[11px] text-slate-600 text-center">Permohonan CRK/CTR tambahan memerlukan rujukan kepada pihak pentadbir.</p>
+            </div>
+
+            <div class="bg-amber-100 border border-amber-300 rounded-xl p-3 text-amber-950 text-xs font-black mb-4 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-user-tie text-base"></i> SILA RUJUK GURU BESAR
+            </div>
+
+            <button onclick="closeModal('modal-full-warning')" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-black text-xs shadow-md">
+                TUTUP
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 4: NOTIFIKASI BERJAYA -->
+    <div id="modal-success" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="text-base font-black text-slate-900">PERMOHONAN BERJAYA DIREKODKAN</h3>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 my-3 text-xs text-left space-y-1" id="success-details">
+                <!-- Details -->
+            </div>
+            <button onclick="closeModal('modal-success')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg font-bold text-xs">
+                OK, TERIMA KASIH
+            </button>
+        </div>
+    </div>
+
+    <!-- APPLICATION LOGIC (JAVASCRIPT) -->
+    <script>
+        // --- 1. DATA MASTER SENARAI GURU SK TAGAROH ---
+        const SENARAI_GURU = [
+            "JASNI BINING", "MOHD ESWADIE", "JULINA", "LORITA", "AIME", 
+            "ANGELA", "EMPAGA", "DATU MUHD. FARID", "FATIMAH", "FORSTER", 
+            "HAIMON", "NOR HAZIMAH", "HERNITA", "IVYLYN", "JOHN MIDIN", 
+            "RUSINEH", "JURIFFAH", "LEBIAH", "LOW LI NGO", "MILOI SINOH", 
+            "NORMINAH", "SURYATI", "RICHARD", "RIZE", "ROSLINAH@NANAK", 
+            "KARYANTO", "RUJI", "SITTI SAUDAH", "ROSMINAH"
+        ].sort();
+
+        // --- KOD AKSES PENTADBIR ---
+        const ADMIN_PASSCODE = "5110";
+        let isAdminAuthenticated = false;
+
+        // --- 2. GLOBAL STATE ---
+        let leaveDatabase = [];
+        let currentDate = new Date(2026, 6, 1); // Default ke Julai 2026
+        const MAX_SLOT = 2; // Had maksimum 2 orang guru sehari
+
+        // --- 3. INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            loadInitialData();
+            populateTeacherDropdown();
+            renderCalendar();
+            updateDashboardStats();
+        });
+
+        function loadInitialData() {
+            const savedData = localStorage.getItem('eCuti_Data');
+            if (savedData) {
+                leaveDatabase = JSON.parse(savedData);
+            } else {
+                leaveDatabase = [
+                    {
+                        id: "CUTI-101",
+                        timestamp: "2026-07-20 09:00:00",
+                        nama: "MOHD ESWADIE",
+                        jenis: "CRK",
+                        tarikh: "2026-07-24",
+                        catatan: "Urusan keluarga",
+                        status: "LULUS"
+                    },
+                    {
+                        id: "CUTI-102",
+                        timestamp: "2026-07-20 10:15:00",
+                        nama: "JULINA",
+                        jenis: "CTR",
+                        tarikh: "2026-07-24",
+                        catatan: "Kursus Luar",
+                        status: "LULUS"
+                    }
+                ];
+                saveToLocalStorage();
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('eCuti_Data', JSON.stringify(leaveDatabase));
+            syncWithGoogleSheets();
+        }
+
+        function populateTeacherDropdown() {
+            const select = document.getElementById('input-nama');
+            select.innerHTML = '<option value="">-- Pilih Nama Guru --</option>';
+            SENARAI_GURU.forEach(guru => {
+                const opt = document.createElement('option');
+                opt.value = guru;
+                opt.textContent = guru;
+                select.appendChild(opt);
+            });
+        }
+
+        // --- 4. TABS SWITCHING & ADMIN AUTHENTICATION ---
+        function switchTab(tabName) {
+            // Pengesahan Keselamatan Pentadbir
+            if (tabName === 'admin' && !isAdminAuthenticated) {
+                document.getElementById('admin-auth-error').classList.add('hidden');
+                document.getElementById('input-admin-code').value = '';
+                openModal('modal-admin-auth');
+                return;
+            }
+
+            ['dashboard', 'senarai', 'statistik', 'admin'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (navBtn) {
+                    navBtn.className = "px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition-colors";
+                }
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            if (activeNav) {
+                activeNav.className = "px-3.5 py-2 rounded-lg text-blue-400 bg-slate-800/80 font-bold flex items-center gap-2 border border-blue-500/30";
+            }
+
+            if (tabName === 'dashboard') { renderCalendar(); updateDashboardStats(); }
+            if (tabName === 'senarai') { renderTableData(); }
+            if (tabName === 'statistik') { renderStatistik(); }
+            if (tabName === 'admin') { renderAdminTable(); }
+        }
+
+        function verifyAdminAccess(e) {
+            e.preventDefault();
+            const inputCode = document.getElementById('input-admin-code').value;
+            if (inputCode === ADMIN_PASSCODE) {
+                isAdminAuthenticated = true;
+                closeModal('modal-admin-auth');
+                switchTab('admin');
+            } else {
+                document.getElementById('admin-auth-error').classList.remove('hidden');
+            }
+        }
+
+        function cancelAdminAccess() {
+            closeModal('modal-admin-auth');
+        }
+
+        function lockAdminPanel() {
+            isAdminAuthenticated = false;
+            switchTab('dashboard');
+        }
+
+        // --- 5. KALENDAR LOGIK ---
+        function renderCalendar() {
+            const container = document.getElementById('calendar-days-container');
+            container.innerHTML = '';
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            const monthNames = ["JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN", "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"];
+            document.getElementById('calendar-month-year').textContent = `${monthNames[month]} ${year}`;
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            const prevMonthTotalDays = new Date(year, month, 0).getDate();
+
+            for (let x = firstDayIndex; x > 0; x--) {
+                const dayNum = prevMonthTotalDays - x + 1;
+                const div = document.createElement('div');
+                div.className = "bg-slate-50 min-h-[100px] p-1.5 text-slate-300 text-xs select-none";
+                div.innerHTML = `<span class="font-medium">${dayNum}</span>`;
+                container.appendChild(div);
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const leavesForDay = leaveDatabase.filter(l => l.tarikh === dateString);
+                const count = leavesForDay.length;
+
+                let statusBg = "bg-white hover:bg-slate-50";
+                let statusBadge = `<span class="text-[10px] text-emerald-800 font-bold bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">2 SLOT</span>`;
+                let borderStyle = "border-slate-200";
+
+                if (count === 1) {
+                    statusBadge = `<span class="text-[10px] text-amber-800 font-bold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">1 SLOT</span>`;
+                } else if (count >= MAX_SLOT) {
+                    statusBg = "bg-rose-50/70 hover:bg-rose-100/60";
+                    borderStyle = "border-rose-200";
+                    statusBadge = `<span class="text-[10px] text-rose-800 font-extrabold bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded">🔴 CUTI PENUH</span>`;
+                }
+
+                const dayBox = document.createElement('div');
+                dayBox.className = `${statusBg} border ${borderStyle} min-h-[100px] sm:min-h-[110px] p-1.5 flex flex-col justify-between cursor-pointer transition-all duration-150 relative`;
+                dayBox.onclick = () => openDateDetailModal(dateString);
+
+                let teacherBadgesHTML = leavesForDay.map(l => {
+                    const isCRK = l.jenis === 'CRK';
+                    const colorClass = isCRK ? 'bg-orange-100 text-orange-900 border-orange-300' : 'bg-blue-100 text-blue-900 border-blue-300';
+                    const icon = isCRK ? '🟠' : '🔵';
+                    return `
+                        <div class="text-[11px] ${colorClass} border px-1.5 py-1 rounded-md font-bold truncate flex items-center gap-1 my-0.5" title="${l.nama} (${l.jenis})">
+                            <span class="text-[9px]">${icon}</span>
+                            <span class="truncate">${l.nama}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                dayBox.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-xs text-slate-800">${day}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="mt-1">
+                            ${teacherBadgesHTML}
+                        </div>
+                    </div>
+                    ${count >= MAX_SLOT ? `<div class="text-[9px] font-black text-rose-600 text-center mt-1">2/2 DIGUNAKAN</div>` : ''}
+                `;
+
+                container.appendChild(dayBox);
+            }
+        }
+
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function goToToday() {
+            currentDate = new Date(2026, 6, 24);
+            renderCalendar();
+        }
+
+        // --- 6. ATOMIC VALIDATION & BORANG SUBMISSION ---
+        function checkSlotAvailabilityOnForm() {
+            const dateVal = document.getElementById('input-tarikh').value;
+            const indicator = document.getElementById('form-slot-indicator');
+            const submitBtn = document.getElementById('btn-submit-apply');
+
+            if (!dateVal) {
+                indicator.classList.add('hidden');
+                return;
+            }
+
+            const count = leaveDatabase.filter(l => l.tarikh === dateVal).length;
+            indicator.classList.remove('hidden');
+
+            if (count === 0) {
+                indicator.className = "p-3 rounded-lg text-xs font-medium border bg-emerald-50 border-emerald-200 text-emerald-800";
+                indicator.innerHTML = `<i class="fa-solid fa-circle-check"></i> 🟢 <strong>2 SLOT TERSEDIA</strong> bagi tarikh ini.`;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else if (count === 1) {
+                const existing = leaveDatabase.find(l => l.tarikh === dateVal);
+                indicator.className = "p-3 rounded-lg text-xs font-medium border bg-amber-50 border-amber-200 text-amber-800";
+                indicator.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 🟡 <strong>1 SLOT LAGI TERSEDIA</strong>.<br><span class="text-[11px] text-amber-900">Guru telah bercuti: ${existing.nama} (${existing.jenis})</span>`;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                indicator.className = "p-3 rounded-lg text-xs font-medium border bg-rose-50 border-rose-200 text-rose-800";
+                indicator.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> 🔴 <strong>CUTI PENUH (0 SLOT TERSEDIA)</strong>.<br><span class="text-[11px]">Dua orang guru telah mengambil cuti bagi tarikh ini.</span>`;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const nama = document.getElementById('input-nama').value;
+            const jenis = document.getElementById('input-jenis').value;
+            const tarikh = document.getElementById('input-tarikh').value;
+            const catatan = document.getElementById('input-catatan').value || 'Tiada catatan';
+
+            const existingLeaves = leaveDatabase.filter(l => l.tarikh === tarikh);
+            
+            if (existingLeaves.length >= MAX_SLOT) {
+                closeModal('modal-apply');
+                document.getElementById('warning-date-text').textContent = `Tarikh: ${formatDateMalay(tarikh)}`;
+                openModal('modal-full-warning');
+                return;
+            }
+
+            const newRecord = {
+                id: 'CUTI-' + Date.now().toString().slice(-4),
+                timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+                nama,
+                jenis,
+                tarikh,
+                catatan,
+                status: 'LULUS'
+            };
+
+            leaveDatabase.push(newRecord);
+            saveToLocalStorage();
+
+            closeModal('modal-apply');
+            renderCalendar();
+            updateDashboardStats();
+
+            const remSlots = MAX_SLOT - (existingLeaves.length + 1);
+            document.getElementById('success-details').innerHTML = `
+                <p><strong>Nama:</strong> ${nama}</p>
+                <p><strong>Jenis:</strong> ${jenis}</p>
+                <p><strong>Tarikh:</strong> ${formatDateMalay(tarikh)}</p>
+                <p><strong>Baki Slot Tarikh Ini:</strong> ${remSlots} / ${MAX_SLOT}</p>
+            `;
+            openModal('modal-success');
+            document.getElementById('form-apply').reset();
+        }
+
+        // --- 7. KLIK TARIKH MODAL ---
+        function openDateDetailModal(dateString) {
+            const leaves = leaveDatabase.filter(l => l.tarikh === dateString);
+            const count = leaves.length;
+
+            document.getElementById('detail-modal-date-title').textContent = formatDateMalay(dateString);
+            
+            const statusBox = document.getElementById('detail-modal-status');
+            const teacherList = document.getElementById('detail-modal-teachers');
+            const actionBox = document.getElementById('detail-modal-action');
+
+            if (count === 0) {
+                statusBox.className = "p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-bold";
+                statusBox.innerHTML = `🟢 2 SLOT TERSEDIA (BELUM ADA PERMOHONAN)`;
+                teacherList.innerHTML = `<p class="text-xs text-slate-400 italic">Tiada guru bercuti pada tarikh ini.</p>`;
+                actionBox.innerHTML = `
+                    <button onclick="applyForSpecificDate('${dateString}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs shadow">
+                        MOHON CUTI TARIKH INI
+                    </button>
+                `;
+            } else if (count === 1) {
+                statusBox.className = "p-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs font-bold";
+                statusBox.innerHTML = `🟡 1 / 2 SLOT DIGUNAKAN (1 SLOT TERSEDIA)`;
+                teacherList.innerHTML = `
+                    <div class="p-2 bg-slate-100 rounded-lg text-xs font-bold text-slate-800 flex justify-between">
+                        <span>${leaves[0].nama}</span>
+                        <span class="text-blue-600">${leaves[0].jenis}</span>
+                    </div>
+                `;
+                actionBox.innerHTML = `
+                    <button onclick="applyForSpecificDate('${dateString}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs shadow">
+                        MOHON CUTI TARIKH INI
+                    </button>
+                `;
+            } else {
+                statusBox.className = "p-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-xs font-bold";
+                statusBox.innerHTML = `🔴 CUTI PENUH — 2/2 SLOT DIGUNAKAN`;
+                teacherList.innerHTML = leaves.map(l => `
+                    <div class="p-2 bg-slate-100 rounded-lg text-xs font-bold text-slate-800 flex justify-between">
+                        <span>${l.nama}</span>
+                        <span class="text-blue-600">${l.jenis}</span>
+                    </div>
+                `).join('');
+                actionBox.innerHTML = `
+                    <div class="p-3 bg-rose-100 text-rose-800 text-xs rounded-xl font-black text-center">
+                        🔒 PERMOHONAN DITUTUP (RUJUK GURU BESAR)
+                    </div>
+                `;
+            }
+
+            openModal('modal-date-detail');
+        }
+
+        function applyForSpecificDate(dateString) {
+            closeModal('modal-date-detail');
+            openApplyModal();
+            document.getElementById('input-tarikh').value = dateString;
+            checkSlotAvailabilityOnForm();
+        }
+
+        // --- 8. SENARAI TABLE & ADMIN RENDERING ---
+        function renderTableData() {
+            const tbody = document.getElementById('table-leave-body');
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const jenisFilter = document.getElementById('filter-jenis').value;
+
+            tbody.innerHTML = '';
+
+            const filtered = leaveDatabase.filter(item => {
+                const matchName = item.nama.toLowerCase().includes(search);
+                const matchJenis = jenisFilter === '' || item.jenis === jenisFilter;
+                return matchName && matchJenis;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Tiada rekod dijumpai.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-800">${formatDateMalay(item.tarikh)}</td>
+                    <td class="p-3 font-bold text-slate-900">${item.nama}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.jenis === 'CRK' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'}">${item.jenis}</span></td>
+                    <td class="p-3 text-slate-600">${item.catatan}</td>
+                    <td class="p-3"><span class="text-emerald-600 font-bold text-[11px]"><i class="fa-solid fa-check"></i> ${item.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = '';
+
+            leaveDatabase.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="p-3 text-slate-400 font-mono">${item.id}</td>
+                    <td class="p-3 font-bold">${item.tarikh}</td>
+                    <td class="p-3 font-black text-slate-900">${item.nama}</td>
+                    <td class="p-3 font-bold">${item.jenis}</td>
+                    <td class="p-3 text-slate-500 truncate max-w-xs">${item.catatan}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteRecord('${item.id}')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold px-2.5 py-1 rounded text-[11px]">
+                            <i class="fa-solid fa-trash"></i> Padam
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteRecord(id) {
+            if (confirm(`Adakah anda pasti mahu memadam rekod ${id}? Slot akan dibuka semula secara automatik.`)) {
+                leaveDatabase = leaveDatabase.filter(l => l.id !== id);
+                saveToLocalStorage();
+                renderAdminTable();
+                renderCalendar();
+                updateDashboardStats();
+            }
+        }
+
+        // --- 9. STATISTIK RENDERING ---
+        function renderStatistik() {
+            const totalCRK = leaveDatabase.filter(l => l.jenis === 'CRK').length;
+            const totalCTR = leaveDatabase.filter(l => l.jenis === 'CTR').length;
+
+            document.getElementById('stat-total-crk').textContent = totalCRK;
+            document.getElementById('stat-total-ctr').textContent = totalCTR;
+            document.getElementById('stat-total-all').textContent = leaveDatabase.length;
+
+            const listContainer = document.getElementById('stat-teacher-list');
+            listContainer.innerHTML = '';
+
+            SENARAI_GURU.forEach(guru => {
+                const teacherLeaves = leaveDatabase.filter(l => l.nama === guru);
+                const crkCount = teacherLeaves.filter(l => l.jenis === 'CRK').length;
+                const ctrCount = teacherLeaves.filter(l => l.jenis === 'CTR').length;
+
+                const div = document.createElement('div');
+                div.className = "p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs flex justify-between items-center";
+                div.innerHTML = `
+                    <span class="font-bold text-slate-800 truncate">${guru}</span>
+                    <div class="flex gap-1 text-[10px]">
+                        <span class="bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded font-bold">${crkCount} CRK</span>
+                        <span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold">${ctrCount} CTR</span>
+                    </div>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        // --- 10. DASHBOARD SUMMARY STATS ---
+        function updateDashboardStats() {
+            const todayStr = "2026-07-24";
+            const leavesToday = leaveDatabase.filter(l => l.tarikh === todayStr);
+
+            document.getElementById('stat-cuti-hari-ini').textContent = leavesToday.length;
+            document.getElementById('stat-cuti-hari-ini-date').textContent = formatDateMalay(todayStr);
+            document.getElementById('stat-crk-hari-ini').textContent = leavesToday.filter(l => l.jenis === 'CRK').length;
+            document.getElementById('stat-ctr-hari-ini').textContent = leavesToday.filter(l => l.jenis === 'CTR').length;
+            document.getElementById('stat-slot-tersedia').textContent = `${MAX_SLOT - leavesToday.length} / ${MAX_SLOT}`;
+            
+            const monthStr = "2026-07";
+            const leavesMonth = leaveDatabase.filter(l => l.tarikh.startsWith(monthStr));
+            document.getElementById('stat-permohonan-bulan').textContent = leavesMonth.length;
+        }
+
+        // --- 11. HELPER FUNCTIONS & MODALS ---
+        function openApplyModal() { openModal('modal-apply'); }
+        
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function formatDateMalay(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            const day = parseInt(parts[2]);
+            const monthNames = ["Januari", "Februari", "Mac", "April", "Mei", "Jun", "Julai", "Ogos", "September", "Oktober", "November", "Disember"];
+            const month = monthNames[parseInt(parts[1]) - 1];
+            return `${day} ${month} ${parts[0]}`;
+        }
+
+        function saveGSheetsUrl() {
+            const url = document.getElementById('gsheets-url').value;
+            localStorage.setItem('eCuti_GSheets_URL', url);
+            alert('URL Google Sheets telah disimpan!');
+        }
+
+        function syncWithGoogleSheets() {
+            const url = localStorage.getItem('eCuti_GSheets_URL');
+            if (!url) return;
+            fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(leaveDatabase)
+            }).catch(e => console.error("GSheets Sync error:", e));
+        }
+    </script>
+</body>
+</html>
