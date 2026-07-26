@@ -17,13 +17,13 @@
     <header class="bg-blue-700 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <i class="fa-solid me-2 fa-calendar-check text-2xl text-yellow-300"></i>
+                <i class="fa-solid fa-calendar-check text-2xl text-yellow-300"></i>
                 <div>
                     <h1 class="font-bold text-lg leading-tight">e-CUTI SK TAGAROH</h1>
                     <p class="text-xs text-blue-200">Sistem Semakan & Permohonan Cuti</p>
                 </div>
             </div>
-            <button onclick="toggleAdminModal()" class="bg-blue-800 hover:bg-blue-900 text-xs px-3 py-2 rounded-lg border border-blue-500 transition">
+            <button onclick="openAdminModal()" class="bg-blue-800 hover:bg-blue-900 text-xs px-3 py-2 rounded-lg border border-blue-500 transition">
                 <i class="fa-solid fa-lock mr-1"></i> Pentadbir
             </button>
         </div>
@@ -33,16 +33,16 @@
     <main class="max-w-4xl mx-auto px-4 mt-6">
         
         <!-- Status Sync Banner -->
-        <div id="syncStatus" class="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-lg text-xs flex justify-between items-center">
+        <div id="syncStatus" class="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-lg text-xs flex justify-between items-center font-medium">
             <span><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat turun data terkini...</span>
-            <button onclick="fetchDataFromSheet()" class="underline font-semibold">Muat Semula</button>
+            <button onclick="fetchDataFromSheet()" class="underline font-semibold hover:opacity-80">Muat Semula</button>
         </div>
 
         <!-- Action Card -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex justify-between items-center">
             <div>
                 <h2 class="font-bold text-slate-700">Permohonan Cuti Guru</h2>
-                <p class="text-xs text-slate-500">Maksimum 2 orang guru sahaja dibenarkan sehari.</p>
+                <p class="text-xs text-slate-500">Maksimum <span class="font-bold text-red-600">2 orang guru</span> sahaja dibenarkan sehari.</p>
             </div>
             <button onclick="openApplyModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm px-4 py-2.5 rounded-xl shadow-md transition flex items-center">
                 <i class="fa-solid fa-plus mr-2"></i> Mohon Cuti
@@ -53,7 +53,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="p-4 bg-slate-100 border-b border-slate-200 font-bold text-sm text-slate-700 flex justify-between items-center">
                 <span><i class="fa-solid fa-list mr-2 text-blue-600"></i> Senarai Permohonan Cuti Terkini</span>
-                <span id="totalCount" class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">0 Rekod</span>
+                <span id="totalCount" class="bg-blue-100 text-blue-700 text-xs px-2.5 py-1 rounded-full font-bold">0 Rekod</span>
             </div>
             <div id="leaveList" class="divide-y divide-slate-100 text-sm">
                 <div class="p-8 text-center text-slate-400">Sedang memuatkan data...</div>
@@ -61,7 +61,7 @@
         </div>
     </main>
 
-    <!-- Modal Permohonan -->
+    <!-- Modal Permohonan Cuti -->
     <div id="applyModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="font-bold text-lg mb-4 text-slate-800">Borang Permohonan Cuti</h3>
@@ -85,7 +85,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Catatan / Sebab</label>
-                        <textarea id="leaveNote" placeholder="Urusan Keluarga" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" rows="2"></textarea>
+                        <textarea id="leaveNote" placeholder="Urusan Keluarga / Temujanji Doktor" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end space-x-3">
@@ -96,21 +96,37 @@
         </div>
     </div>
 
-    <!-- Modal Admin -->
+    <!-- Modal Admin / Security -->
     <div id="adminModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <h3 class="font-bold text-lg mb-4 text-slate-800">Tetapan Google Sheets (Pentadbir)</h3>
-            <p class="text-xs text-slate-500 mb-4">Masukkan URL Web App dari Apps Script Google Sheets di bawah supaya data boleh dikongsi secara live antara semua telefon.</p>
-            <input type="url" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 border rounded-lg text-xs mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
-            <div class="flex justify-end space-x-3">
-                <button onclick="toggleAdminModal()" class="px-4 py-2 text-sm text-slate-500 hover:bg-slate-100 rounded-lg">Tutup</button>
-                <button onclick="saveScriptUrl()" class="px-4 py-2 text-sm bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700">Simpan URL</button>
+            <h3 class="font-bold text-lg mb-2 text-slate-800">Akses Pentadbir</h3>
+            
+            <!-- Auth Form -->
+            <div id="adminAuth">
+                <p class="text-xs text-slate-500 mb-4">Masukkan kod keselamatan pentadbir untuk mengakses tetapan.</p>
+                <input type="password" id="adminPass" placeholder="Kod Akses (Contoh: 5110)" class="w-full px-3 py-2 border rounded-lg text-sm mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                <div class="flex justify-end space-x-2">
+                    <button onclick="closeAdminModal()" class="px-4 py-2 text-sm text-slate-500 hover:bg-slate-100 rounded-lg">Batal</button>
+                    <button onclick="checkAdminPass()" class="px-4 py-2 text-sm bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700">Masuk</button>
+                </div>
+            </div>
+
+            <!-- Settings Panel (Hidden by default) -->
+            <div id="adminSettings" class="hidden">
+                <p class="text-xs text-slate-500 mb-4">Pautan Google Apps Script Web App untuk Pangkalan Data Live:</p>
+                <input type="url" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 border rounded-lg text-xs mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                <div class="flex justify-between items-center">
+                    <button onclick="clearAllData()" class="text-xs text-red-600 hover:underline">Padam Storan Lokal</button>
+                    <div class="flex space-x-2">
+                        <button onclick="closeAdminModal()" class="px-4 py-2 text-sm text-slate-500 hover:bg-slate-100 rounded-lg">Tutup</button>
+                        <button onclick="saveScriptUrl()" class="px-4 py-2 text-sm bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700">Simpan URL</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Data Store
         let leaveData = [];
         let GOOGLE_SCRIPT_URL = localStorage.getItem('eCuti_Script_Url') || '';
 
@@ -119,13 +135,31 @@
                 document.getElementById('scriptUrl').value = GOOGLE_SCRIPT_URL;
                 fetchDataFromSheet();
             } else {
-                updateSyncStatus('⚠️ Sila masukkan URL Google Sheets di menu Pentadbir!', 'bg-red-100 text-red-800');
+                updateSyncStatus('⚠️ Sila masukkan URL Web App Google Sheets di menu Pentadbir!', 'bg-red-100 text-red-800');
                 renderList();
             }
         });
 
-        function toggleAdminModal() {
-            document.getElementById('adminModal').classList.toggle('hidden');
+        // Modal Controls
+        function openAdminModal() { 
+            document.getElementById('adminAuth').classList.remove('hidden');
+            document.getElementById('adminSettings').classList.add('hidden');
+            document.getElementById('adminPass').value = '';
+            document.getElementById('adminModal').classList.remove('hidden'); 
+        }
+        function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+        function openApplyModal() { document.getElementById('applyModal').classList.remove('hidden'); }
+        function closeApplyModal() { document.getElementById('applyModal').classList.add('hidden'); }
+
+        // Admin Security Check
+        function checkAdminPass() {
+            const pass = document.getElementById('adminPass').value;
+            if(pass === '5110') {
+                document.getElementById('adminAuth').classList.add('hidden');
+                document.getElementById('adminSettings').classList.remove('hidden');
+            } else {
+                alert('Kod Akses Salah!');
+            }
         }
 
         function saveScriptUrl() {
@@ -134,15 +168,37 @@
                 localStorage.setItem('eCuti_Script_Url', url);
                 GOOGLE_SCRIPT_URL = url;
                 alert('URL Google Sheets Berjaya Disimpan!');
-                toggleAdminModal();
+                closeAdminModal();
                 fetchDataFromSheet();
             }
         }
 
-        function openApplyModal() { document.getElementById('applyModal').classList.remove('hidden'); }
-        function closeApplyModal() { document.getElementById('applyModal').classList.add('hidden'); }
+        function clearAllData() {
+            if(confirm('Adakah anda pasti mahu memadam URL simpanan pangkalan data?')) {
+                localStorage.removeItem('eCuti_Script_Url');
+                location.reload();
+            }
+        }
 
-        // Fetch Live Data from Google Sheets
+        // Helper Format Tarikh Cantik (Contoh: 26/07/2026)
+        function formatDate(rawDate) {
+            if(!rawDate) return '-';
+            try {
+                const d = new Date(rawDate);
+                if(isNaN(d.getTime())) {
+                    // Fallback jika sudah bertukar string
+                    return rawDate.toString().split('T')[0];
+                }
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = d.getFullYear();
+                return `${day}/${month}/${year}`;
+            } catch(e) {
+                return rawDate;
+            }
+        }
+
+        // Fetch Live Data dari Google Sheets
         async function fetchDataFromSheet() {
             if(!GOOGLE_SCRIPT_URL) return;
             updateSyncStatus('<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengemaskini data daripada Google Sheets...', 'bg-yellow-100 text-yellow-800');
@@ -151,25 +207,25 @@
                 const res = await fetch(GOOGLE_SCRIPT_URL);
                 const data = await res.json();
                 
-                // Process JSON data from Sheet
                 leaveData = data.map(item => ({
                     id: item[0],
                     timestamp: item[1],
                     nama: item[2],
                     jenis: item[3],
-                    tarikh: item[4],
+                    tarikh: formatDate(item[4]),
+                    rawTarikh: item[4],
                     catatan: item[5],
                     status: item[6]
                 }));
 
                 renderList();
-                updateSyncStatus('✅ Data Berjaya Di-Sync Secara Live!', 'bg-emerald-100 text-emerald-800');
+                updateSyncStatus('<i class="fa-solid fa-circle-check mr-2 text-emerald-600"></i> Data Berjaya Di-Sync Secara Live!', 'bg-emerald-100 text-emerald-800');
             } catch(e) {
-                updateSyncStatus('❌ Gagal membaca data dari Sheets. Pastikan URL betul & "Anyone" dipilih.', 'bg-red-100 text-red-800');
+                updateSyncStatus('❌ Gagal membaca data dari Google Sheets. Semak URL Pentadbir.', 'bg-red-100 text-red-800');
             }
         }
 
-        // Render List to Screen
+        // Render Senarai Cuti ke Skrin
         function renderList() {
             const listContainer = document.getElementById('leaveList');
             document.getElementById('totalCount').innerText = `${leaveData.length} Rekod`;
@@ -187,15 +243,26 @@
                         <div class="text-xs text-slate-400 mt-0.5">${item.catatan || '-'}</div>
                     </div>
                     <div>
-                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">${item.status || 'DILULUSKAN'}</span>
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">${item.status || 'LULUS'}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Submit Form & Push to Google Sheets
+        // Submit Form & Syarat Maksimum 2 Orang Sehari
         async function submitForm(e) {
             e.preventDefault();
+            
+            const rawInputDate = document.getElementById('leaveDate').value;
+            const formattedInputDate = formatDate(rawInputDate);
+
+            // Syarat: Semak bilangan permohonan pada tarikh yang sama
+            const existingOnDate = leaveData.filter(item => item.tarikh === formattedInputDate || item.rawTarikh === rawInputDate);
+            if(existingOnDate.length >= 2) {
+                alert(`⚠️ Maaf, kuota cuti bagi tarikh ${formattedInputDate} telah PENUH (Maksimum 2 orang sahaja dibenarkan sehari). Sila pilih tarikh lain.`);
+                return;
+            }
+
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
             btn.innerText = 'Menghantar...';
@@ -205,12 +272,16 @@
                 timestamp: new Date().toLocaleString('ms-MY'),
                 nama: document.getElementById('teacherName').value,
                 jenis: document.getElementById('leaveType').value,
-                tarikh: document.getElementById('leaveDate').value,
+                tarikh: rawInputDate,
                 catatan: document.getElementById('leaveNote').value,
-                status: 'DILULUSKAN'
+                status: 'LULUS'
             };
 
-            leaveData.unshift(newRecord);
+            // Masukkan ke senarai tempatan secara serta-merta
+            leaveData.unshift({
+                ...newRecord,
+                tarikh: formattedInputDate
+            });
 
             if(GOOGLE_SCRIPT_URL) {
                 try {
@@ -220,9 +291,9 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(leaveData)
                     });
-                    alert('Permohonan Cuti Berjaya Dihantar!');
+                    alert('Permohonan Cuti Berjaya Dihantar & Di-Sync!');
                 } catch(e) {
-                    alert('Gagal sync ke Google Sheets, data tersimpan dalam fon sahaja.');
+                    alert('Permohonan disimpan tetapi gagal sync ke Google Sheets.');
                 }
             }
 
@@ -231,13 +302,14 @@
             btn.disabled = false;
             btn.innerText = 'Hantar Permohonan';
             
+            // Re-fetch untuk kepastian data terbaru dari Google Sheets
             setTimeout(fetchDataFromSheet, 1500);
         }
 
         function updateSyncStatus(msg, bgClass) {
             const statusBox = document.getElementById('syncStatus');
-            statusBox.className = `mb-4 p-3 rounded-lg text-xs flex justify-between items-center ${bgClass}`;
-            statusBox.innerHTML = `<span>${msg}</span> <button onclick="fetchDataFromSheet()" class="underline font-semibold">Muat Semula</button>`;
+            statusBox.className = `mb-4 p-3 rounded-lg text-xs flex justify-between items-center font-medium ${bgClass}`;
+            statusBox.innerHTML = `<span>${msg}</span> <button onclick="fetchDataFromSheet()" class="underline font-semibold hover:opacity-80">Muat Semula</button>`;
         }
     </script>
 </body>
